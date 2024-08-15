@@ -5,15 +5,16 @@ import (
 	"errors"
 	"io"
 )
+
 // ReadInputFile reads the input file containing tetromino definitions.
 // It parses the file and returns an array of tetrominoes or an error if the format is invalid.
 func ReadInputFile(file io.Reader) ([][4][4]string, error) {
-	fileError := errors.New("File Error")
+	fileError := errors.New("file error")
 	var tetrominoArray [][4][4]string // initialize slice for the pieces
-	var tetromino [4][4]string
+	var tetromino [4][4]string        // tetromino is a temporary array that stores a single tetromino.
 	scanner := bufio.NewScanner(file) // to read the file line by line
 	index := 0
-	alpha := "ABCDEFGHIJKLMNOPQRSTUVWXYZ" // String to map tetrominoes to letters.
+	letter := "ABCDEFGHIJKLMNOPQRSTUVWXYZ" // String to map tetrominoes to letters.
 	for scanner.Scan() {
 		for i := 0; i < 4; i++ {
 			if i > 0 && !scanner.Scan() {
@@ -31,7 +32,7 @@ func ReadInputFile(file io.Reader) ([][4][4]string, error) {
 					if rune(str[ind]) == '.' {
 						arr[ind] = "."
 					} else if rune(str[ind]) == '#' {
-						arr[ind] = string(alpha[index])
+						arr[ind] = string(letter[index])
 					} else {
 						return nil, fileError
 					}
@@ -61,11 +62,11 @@ func ReadInputFile(file io.Reader) ([][4][4]string, error) {
 // InitSquare initializes a square board of size n x n filled with empty spaces (".").
 // It returns a 2D slice representing the empty board.
 func InitSquare(n int) [][]string {
-	//initializes a square
-	var Square [][]string
-	var row []string
-	for i := 0; i < n; i++ {
-		for j := 0; j < n; j++ {
+	// initializes a square and n is the size of square grid
+	var Square [][]string //This is a 2D slice that will hold the entire grid.
+	var row []string //This is a slice that will represent a single row of the grid.
+	for i := 0; i < n; i++ { //i is the no times of iterations
+		for j := 0; j < n; j++ { //j is the rows which will be replaced with "."
 			row = append(row, ".")
 		}
 		Square = append(Square, row)
@@ -73,16 +74,17 @@ func InitSquare(n int) [][]string {
 	}
 	return Square
 }
+
 // CheckPiece validates a tetromino to ensure it has exactly four blocks and appropriate connections.
 // It checks that the tetromino does not have more or less than four filled blocks and that they are connected.
 func CheckPiece(tetromino [4][4]string) bool {
-	c := 0  // Counter for filled blocks.
-	d := 0  // Counter for adjacent connections.
+	c := 0 // Counter for filled blocks.
+	d := 0 // Counter for adjacent connections.
 
 	for a, elem := range tetromino {
 		for b, elem2 := range elem {
 			if elem2 != "." {
-				d++  // Increment filled block count.
+				d++ // Increment filled block count.
 				// Check for adjacent blocks in all four directions.
 				if a+1 < 4 && tetromino[a+1][b] != "." {
 					c++
@@ -108,3 +110,13 @@ func CheckPiece(tetromino [4][4]string) bool {
 	}
 	return false
 }
+
+/*
+For each filled block, the function checks its four possible adjacent neighbors:
+
+    Downward (a+1 < 4): Ensures that the cell below the current cell is within bounds and is also filled. If true, c is incremented.
+    Upward (a-1 >= 0): Ensures that the cell above the current cell is within bounds and is also filled. If true, c is incremented.
+    Rightward (b+1 < 4): Ensures that the cell to the right is within bounds and is also filled. If true, c is incremented.
+    Leftward (b-1 >= 0): Ensures that the cell to the left is within bounds and is also filled. If true, c is incremented.
+
+*/
